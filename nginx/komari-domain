@@ -1,0 +1,30 @@
+server {
+    listen 25776 ssl;
+    server_name komari.dhoqdqoqq.dpdns.org;
+    server_tokens off;
+    ssl_certificate /etc/nginx/ssl/komari-le.crt;
+    ssl_certificate_key /etc/nginx/ssl/komari-le.key;
+    location = /favicon.ico {
+        alias /var/www/komari-icons/favicon.ico;
+    }
+    location = /assets/pwa-icon.png {
+        alias /var/www/komari-icons/icon-512.png;
+    }
+    location = /assets/same-window.js {
+        alias /var/www/komari-icons/same-window.js;
+    }
+    location / {
+        sub_filter '</head>' '<script src="/assets/same-window.js"></script></head>';
+        sub_filter_once on;
+        sub_filter_types text/html;
+        proxy_pass http://127.0.0.1:25774;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        add_header Content-Security-Policy "upgrade-insecure-requests" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    }
+}
